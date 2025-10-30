@@ -109,3 +109,33 @@ Shopify also exposes a REST endpoint at `POST /admin/api/2024-10/draft_orders.js
 - Add tests that mock the Shopify API responses.
 - Extend the selection set to include metafields or custom data relevant to your workflow.
 
+## Running the HTTP service
+
+The `railway-deployment` branch exposes an HTTP API so you can deploy the helper as a service.
+
+1. Copy `env.example` to `.env` (or export the variables another way) and set:
+   - `SHOPIFY_STORE_DOMAIN`
+   - `SHOPIFY_ADMIN_API_TOKEN`
+   - `PORT` (optional, defaults to `3000`)
+2. Install dependencies: `npm install`
+3. Start the service: `npm run start`
+
+```
+POST /draft-orders
+{
+  "lineItems": [{ "variantId": "gid://shopify/ProductVariant/123", "quantity": 1 }],
+  "overrides": { "note": "Created from HTTP service" }
+}
+```
+
+Responses contain `{ "draftOrder": { ... } }` or `{ "error": "message" }`.
+
+## Deploying to Railway
+
+Railway will detect the project as a Node service and run `npm install` followed by `npm run start` (defined in `railway.toml`).
+
+1. Create a new project/service in Railway and connect it to this repository.
+2. Set the environment variables from `env.example` in the service settings.
+3. Deploy the `railway-deployment` branch.
+4. Railway will expose a public URL where you can send `POST /draft-orders` requests.
+
